@@ -1,3 +1,4 @@
+// src/lib/editor.ts
 import { supabase } from './supabase';
 import type { Database } from '@/types/supabase';
 
@@ -11,15 +12,52 @@ export interface WebsiteContent {
   };
 }
 
-export async function getWebsiteContent(websiteId: string) {
+export async function getWebsiteCustomization(websiteId: string) {
   const { data, error } = await supabase
     .from('website_content')
     .select('*')
     .eq('website_id', websiteId)
     .single();
 
-  if (error) throw error;
-  return data;
+  console.log('getWebsiteCustomization data:', data);
+  console.log('getWebsiteCustomization error:', error);
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      console.warn('No content found for the given websiteId. Returning default template.');
+      return {
+        content: {
+          header: 'Welcome to Your New Website',
+          subheader: 'Customize this template to get started',
+          about: 'Add your business information here.',
+          footer: 'Powered by Flux'
+        },
+        theme: {
+          primary: '#007bff',
+          secondary: '#6c757d',
+          background: '#ffffff',
+          text: '#000000'
+        }
+      };
+    } else {
+      throw error;
+    }
+  }
+
+  return {
+    content: data?.content || {
+      header: 'Welcome to Your New Website',
+      subheader: 'Customize this template to get started',
+      about: 'Add your business information here.',
+      footer: 'Powered by Flux'
+    },
+    theme: data?.theme || {
+      primary: '#007bff',
+      secondary: '#6c757d',
+      background: '#ffffff',
+      text: '#000000'
+    }
+  };
 }
 
 export async function updateWebsiteContent(
@@ -35,6 +73,9 @@ export async function updateWebsiteContent(
     })
     .select()
     .single();
+
+  console.log('updateWebsiteContent data:', data);
+  console.log('updateWebsiteContent error:', error);
 
   if (error) throw error;
   return data;
@@ -67,6 +108,9 @@ export async function uploadAsset(
     })
     .select()
     .single();
+
+  console.log('uploadAsset data:', data);
+  console.log('uploadAsset error:', error);
 
   if (error) throw error;
   return data;

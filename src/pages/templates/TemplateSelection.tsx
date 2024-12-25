@@ -1,7 +1,9 @@
+// src/pages/templates/TemplateSelection.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTemplate } from '@/contexts/TemplateContext';
 import { getTemplates, type Template } from '@/lib/templates';
 
 export function TemplateSelection() {
@@ -9,6 +11,7 @@ export function TemplateSelection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const { user } = useAuth();
+  const { setSelectedTemplate } = useTemplate();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,9 +31,8 @@ export function TemplateSelection() {
   }, []);
 
   const handleTemplateSelect = (template: Template) => {
-    navigate('/setup/subdomain', { 
-      state: { templateId: template.id }
-    });
+    setSelectedTemplate(template);
+    navigate('/setup/subdomain');
   };
 
   if (loading) {
