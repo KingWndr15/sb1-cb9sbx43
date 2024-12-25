@@ -1,10 +1,10 @@
-// src/pages/templates/TemplateSelection.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTemplate } from '@/contexts/TemplateContext';
 import { getTemplates, type Template } from '@/lib/templates';
+import { getLandingPageTemplate } from '@/lib/supabase'; // Import the new function
 
 export function TemplateSelection() {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -30,10 +30,17 @@ export function TemplateSelection() {
     loadTemplates();
   }, []);
 
-  const handleTemplateSelect = (template: Template) => {
-    setSelectedTemplate(template);
+const handleTemplateSelect = async (template: Template) => {
+  setSelectedTemplate(template);
+  try {
+    const templateName = template.name; // Retrieve the template name
+    const templateData = await getLandingPageTemplate(templateName); // Pass the template name
     navigate('/setup/subdomain');
-  };
+  } catch (error) {
+    console.error('Error fetching template:', error);
+    alert('Failed to load the selected template. Please try again.');
+  }
+};
 
   if (loading) {
     return (
